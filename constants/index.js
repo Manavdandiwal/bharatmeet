@@ -1,23 +1,23 @@
 export const SidebarLinks = [
     {
         label: "Home",
-        imgUrl: "/icons/home.svg",
+        imgUrl: "/icons/Home.svg",
         route: "/"
     },
     {
-        label: "Upcoming Meetings",
+        label: "Upcoming",
         imgUrl: "/icons/upcoming.svg",
         route: "/upcoming"
     },
     {
-        label: "Previous Meetings",
+        label: "Previous",
         imgUrl: "/icons/previous.svg",
         route: "/previous"
     },
     {
         label: "Personal Room",
-        imgUrl: "/icons/personal.svg",
-        route: "/personal"
+        imgUrl: "/icons/add-personal.svg",
+        route: "/personal-room"
     },
 
 ]
