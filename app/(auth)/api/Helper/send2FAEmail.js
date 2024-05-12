@@ -1,21 +1,24 @@
 import nodemailer from "nodemailer";
 
 const sendVerificationEmail = async (userEmail, OTP) => {
-  try {
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "rajancoding597@gmail.com",
-        pass: "funzmtuwnobqjvya", // Use a secure method to store and access passwords
-      },
-    });
+    try {
+        let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "rajancoding597@gmail.com",
+                pass: "funzmtuwnobqjvya", // Use a secure method to store and access passwords
+            },
+            tls: {
+                rejectUnauthorized: false,
+            },
+        });
 
-    let info = await transporter.sendMail({
-      from: '"BharatMeet" <manavdandiwal1111@gmail.com>',
-      to: userEmail,
-      subject: "Verify Your Email Address",
-      text: `Your one time password is: ${OTP}. This OTP will be valid for 10 minutes.`,
-      html: `
+        let info = await transporter.sendMail({
+            from: '"BharatMeet" <manavdandiwal1111@gmail.com>',
+            to: userEmail,
+            subject: "Verify Your Email Address",
+            text: `Your one time password is: ${OTP}. This OTP will be valid for 10 minutes.`,
+            html: `
                 <html>
                     <head>
                         <style>
@@ -61,14 +64,14 @@ const sendVerificationEmail = async (userEmail, OTP) => {
                     </body>
                 </html>
             `,
-    });
+        });
 
-    console.log("Message sent: %s", info.messageId);
-    return { success: true };
-  } catch (err) {
-    console.error(err); // Log error for debugging
-    return { success: false, error: err };
-  }
+        console.log("Message sent: %s", info.messageId);
+        return { success: true };
+    } catch (err) {
+        console.error(err); // Log error for debugging
+        return { success: false, error: err };
+    }
 };
 
 export default sendVerificationEmail;
