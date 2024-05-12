@@ -1,7 +1,11 @@
+'use client'
+
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import MobileNav from "./MobileNav"
+import MobileNav from "./MobileNav";
+import { Button } from "./ui/button";
+import { signOut } from "next-auth/react";
 
 const Navbar = () => {
   return (
@@ -14,11 +18,13 @@ const Navbar = () => {
           alt="BharatMeet"
           className="max-sm:size-10"
         />
-        <p className="text-[26px] font-extrabold text-white max-sm:hidden">BharatMeet</p>
+        <p className="text-[26px] font-extrabold text-white max-sm:hidden">
+          BharatMeet
+        </p>
       </Link>
 
       <div className="flex-between gap-5">
-        {/* USER MANAGEMENT */}
+        <Button type="button" onClick={signOut} >Logout</Button>
 
         <MobileNav />
       </div>
