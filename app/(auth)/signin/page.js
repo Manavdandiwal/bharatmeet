@@ -4,16 +4,17 @@ import axios from "axios";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 function SignIn() {
     const router = useRouter();
     const searchParam = useSearchParams();
     const { status } = useSession();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (status !== "unauthenticated") router.push("/");
     }, []);
-    const [error, setError] = useState({ error: false, message: null });
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailVerified, setEmailVerified] = useState(false);
@@ -23,9 +24,8 @@ function SignIn() {
     async function handleSubmit(event) {
         event.preventDefault();
         if (!emailVerified) {
-            setError({
-                error: true,
-                message: "Verify Email",
+            toast({
+                title: "Verify you email",
             });
             return;
         }
@@ -41,9 +41,8 @@ function SignIn() {
             const URL = searchParam.get("callbackUrl") || "/";
             router.push(URL);
         } else {
-            setError({
-                error: true,
-                message: "Incorrect Credentials",
+            toast({
+                title: "Incorrect Credentials",
             });
             setEmail("");
             setPassword("");
@@ -52,10 +51,10 @@ function SignIn() {
     }
 
     return (
-        <div className="h-[100vh] flex bg-slate-200">
+        <div className="h-[100vh] flex bg-dark-1">
             <div className="mx-auto p-10 py-15">
-                <div className="bg-slate-300 px-10 py-15 rounded-3xl">
-                    <h1 className="text-8xl m-auto my-5 bg-gradient-to-r from-blue-800 to-violet-900 inline-block text-transparent bg-clip-text">
+                <div className="bg-dark-2 px-10 py-15 rounded-3xl">
+                    <h1 className="text-8xl m-auto my-5 bg-gradient-to-r from-pink-200 to-rose-200 inline-block text-transparent bg-clip-text">
                         BHARATMEET
                     </h1>
                     <form
@@ -71,7 +70,7 @@ function SignIn() {
                                 id="email"
                                 name="email"
                                 placeholder="john@gmail.com"
-                                className="text-black p-3 w-[100%] rounded-lg outline-none disabled:border-0 disabled:bg-blue-gray-50"
+                                className="text-white bg-dark-3 p-3 w-[100%] disabled:cursor-not-allowed rounded-lg outline-none disabled:border-0 disabled:bg-blue-gray-50"
                                 value={email}
                                 disabled={emailVerified}
                                 onChange={(e) => {
@@ -80,10 +79,10 @@ function SignIn() {
                                 }}
                                 required
                             />
-                            {!optSent && (
+                            {!emailVerified && (
                                 <button
                                     type="button"
-                                    className="absolute bg-slate-300 p-3 rounded-xl hover:underline text-gray-800 text-lg"
+                                    className="absolute bg-dark-2 p-3 rounded-xl hover:underline text-white text-lg"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         axios
@@ -98,21 +97,19 @@ function SignIn() {
                                             })
                                             .catch((err) => {
                                                 console.log(err);
-                                                setError({
-                                                    error: true,
-                                                    message:
-                                                        err.response.data
-                                                            .message,
+                                                toast({
+                                                    title: err.response.data
+                                                        .message,
                                                 });
                                             });
                                     }}
                                 >
-                                    Send OTP
+                                    {!optSent ? "Send OTP" : "Resend OTP"}
                                 </button>
                             )}
 
                             {optSent && !emailVerified && (
-                                <p className="text-gray-700 px-2">
+                                <p className="text-slate-300 px-2">
                                     OTP has been sent to your email
                                 </p>
                             )}
@@ -128,14 +125,14 @@ function SignIn() {
                                     type="text"
                                     placeholder="otp"
                                     value={otp}
-                                    className="text-black p-3 w-[100%] rounded-lg outline-none"
+                                    className="text-white bg-dark-3 p-3 w-[100%] rounded-lg outline-none"
                                     onChange={(e) => {
                                         setOTP(e.target.value);
                                     }}
                                 />
                                 <button
                                     type="button"
-                                    className="absolute bg-slate-300 p-3 rounded-xl hover:underline text-gray-800 text-lg"
+                                    className="absolute bg-dark-2 p-3 rounded-xl hover:underline text-white text-lg"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         axios
@@ -151,9 +148,9 @@ function SignIn() {
                                             })
                                             .catch((err) => {
                                                 console.log(err);
-                                                setError({
-                                                    error: true,
-                                                    message: err.message,
+                                                toast({
+                                                    title: err.response.data
+                                                        .message,
                                                 });
                                             });
                                     }}
@@ -173,7 +170,7 @@ function SignIn() {
                                 placeholder="Password"
                                 name="password"
                                 value={password}
-                                className="text-black p-3 w-[100%] rounded-lg outline-none disabled:border-0 disabled:bg-blue-gray-50"
+                                className="text-white bg-dark-3 p-3 w-[100%] rounded-lg outline-none disabled:cursor-not-allowed disabled:border-0 disabled:bg-blue-gray-50"
                                 disabled={!emailVerified}
                                 onChange={(e) => {
                                     setPassword(e.target.value);
@@ -181,15 +178,9 @@ function SignIn() {
                                 required
                             />
                         </div>
-
-                        {error.error && (
-                            <p className="text-red-400 m-auto">
-                                {error.message}
-                            </p>
-                        )}
                         <button
                             type="submit"
-                            className="bg-slate-300 p-3 rounded-xl hover:underline text-gray-800 text-2xl"
+                            className="bg-dark-2 text-white p-3 rounded-xl hover:underline text-2xl"
                         >
                             Sign In
                         </button>
