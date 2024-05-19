@@ -1,7 +1,7 @@
 import MeetingTypeList from "@/components/MeetingTypeList";
 import UpcomingMeeting from "@/components/UpcomingMeeting";
 
-const Home = ({ children }) => {
+const Home = () => {
     const now = new Date();
 
     const time = now.toLocaleTimeString("en-US", {
