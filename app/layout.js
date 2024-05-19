@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import "react-datepicker/dist/react-datepicker.css";
+import StreamVideoProvider from "@/providers/streamClientProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +24,9 @@ export default async function RootLayout({ children }) {
         <html lang="en">
             <Provider session={session}>
                 <body className={`${inter.className} no_scroll bg-dark-2`}>
-                    {children}
+                    <StreamVideoProvider>
+                        {children}
+                    </StreamVideoProvider>
                     <Toaster />
                 </body>
             </Provider>
