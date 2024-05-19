@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const sendUserCreationEmail = async (email, password) => {
+const sendUserCreationEmail = async (userEmail, password) => {
     try {
         let transporter = nodemailer.createTransport({
             service: "gmail",
