@@ -12,9 +12,9 @@ import MeetingRoom from "@/components/MeetingRoom";
 import Loader from "@/components/Loader";
 import { useGetCallByID } from "@/hooks/useGetCallByID";
 
-const Meeting = ({ id }) => {
+const Meeting = (props) => {
     const { data: session, status } = useSession();
-
+    const { id } = props;
     const [isSetupComplete, setIsSetupComplete] = useState(false);
 
     const { call, isCallLoading } = useGetCallByID(id);
