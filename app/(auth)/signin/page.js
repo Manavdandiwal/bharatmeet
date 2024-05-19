@@ -39,6 +39,7 @@ function SignIn() {
         if (!result.error) {
             console.log(searchParam);
             const URL = searchParam.get("callbackUrl") || "/";
+            console.log(URL);
             router.push(URL);
         } else {
             toast({
