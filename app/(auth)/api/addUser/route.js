@@ -1,6 +1,7 @@
 import { dbConnect } from "@/app/lib/dbConnect";
 import generator from "@/app/(auth)/api/Helper/passwordGenerator";
 import UserSchema from "@/models/user";
+import sendUserCreationEmail from "@/app/(auth)/api/Helper/sendUserCreationEmail";
 
 const handler = async (req) => {
     const body = await req.json();
@@ -21,6 +22,13 @@ const handler = async (req) => {
             password: generator(),
             role: user.role,
         });
+        const email = await sendUserCreationEmail(user.email, newUser.password);
+        if (!email.success) {
+            return Response.json({
+                success: false,
+                error: "Something went wrong",
+            });
+        }
         await newUser.save();
         if (!newUser) {
             return Response.json({

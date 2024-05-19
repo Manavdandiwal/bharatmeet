@@ -6,7 +6,7 @@ import {
     useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MeetingSetup from "@/components/MeetingSetup";
 import MeetingRoom from "@/components/MeetingRoom";
 import Loader from "@/components/Loader";
@@ -19,6 +19,13 @@ const Meeting = ({ id }) => {
 
     const { call, isCallLoading } = useGetCallByID(id);
     const { useParticipants } = useCallStateHooks();
+
+    useEffect(() => {
+        return () => {
+            call?.camera.disable();
+            call?.microphone.disable();
+        };
+    });
 
     const participants = useParticipants;
 

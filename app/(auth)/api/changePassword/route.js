@@ -9,7 +9,7 @@ const handler = async (req) => {
         await dbConnect();
         const exists = await UserSchema.findOne({
             email: user.email,
-            name: user.name,
+            // name: user.name,
             password: oldPassword,
         });
         if (!exists) {

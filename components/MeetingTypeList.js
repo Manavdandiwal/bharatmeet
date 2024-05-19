@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import HomeCard from "@/components/HomeCard";
 import MeetingModal from "@/components/MeetingModal";
 import { useSession } from "next-auth/react";
@@ -9,7 +9,10 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import Loader from "@/components/Loader";
 import ReactDatePicker from "react-datepicker";
+import InviteModal from "@/components/InvitedModal";
+import axios from "axios";
 
 const MeetingTypeList = () => {
     const router = useRouter();
@@ -22,9 +25,32 @@ const MeetingTypeList = () => {
         description: "",
         link: "",
     });
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [callDetails, setCallDetails] = useState();
     const { toast } = useToast();
+    const [invitedUsers, setInvitedUsers] = useState([]);
+    const [inviteModal, setInviteModal] = useState(false);
+
+    useEffect(() => {
+        const getUsers = async () => {
+            const {
+                data: { users, success },
+            } = await axios.get("/api/getUsers");
+            if (!success) {
+                toast({
+                    title: data.err || "Something went wrong",
+                });
+                return;
+            }
+            setUsers(users);
+            setLoading(false);
+        };
+        getUsers();
+    }, []);
+
+    if (loading) return <Loader />;
 
     const createMeeting = async () => {
         if (!value.dateTime) {
@@ -36,9 +62,26 @@ const MeetingTypeList = () => {
 
         try {
             const callID = crypto.randomUUID();
+            console.log(invitedUsers);
+            const invites = invitedUsers.map((user) => user._id);
 
             const call = client.call("default", callID);
             if (!call) throw new Error("Call could not be generated");
+            console.log("INVITES");
+            console.log(invites);
+
+            const members = invites
+                .map((id) => ({
+                    user_id: String(id),
+                    role: "call_member",
+                }))
+                .concat({ user_id: session.user.id, role: "call_member" })
+                .filter(
+                    (v, i, a) =>
+                        a.findIndex((v2) => v2.user_id === v.user_id) === i
+                );
+            console.log("MEMBERS");
+            console.log(members);
 
             const startAt =
                 value.dateTime.toISOString() ||
@@ -49,6 +92,7 @@ const MeetingTypeList = () => {
             await call.getOrCreate({
                 data: {
                     starts_at: startAt,
+                    members: members,
                     custom: {
                         description: description,
                     },
@@ -126,7 +170,8 @@ const MeetingTypeList = () => {
                             });
                             return;
                         }
-                        createMeeting();
+                        setInviteModal(true);
+                        // createMeeting();
                     }}
                 >
                     <div className="flex flex-col gap-2.5">
@@ -165,6 +210,7 @@ const MeetingTypeList = () => {
                 <MeetingModal
                     isOpen={meetingState === "isScheduleMeeting"}
                     onClose={() => {
+                        setCallDetails(undefined);
                         setMeetingState(undefined);
                     }}
                     title="Meeting Created"
@@ -189,7 +235,9 @@ const MeetingTypeList = () => {
                 title="Start an Instant Meeting"
                 className="text-center"
                 buttonText="Start Meeting"
-                handleClick={createMeeting}
+                handleClick={() => {
+                    setInviteModal(true);
+                }}
             />
 
             <MeetingModal
@@ -210,6 +258,21 @@ const MeetingTypeList = () => {
                     }
                 />
             </MeetingModal>
+
+            <InviteModal
+                isOpen={inviteModal}
+                onClose={() => setInviteModal(false)}
+                userList={users}
+                currUser={user}
+                invitedUsers={invitedUsers}
+                updateInvitedUsers={setInvitedUsers}
+                title="Invite Users"
+                handleClick={() => {
+                    setInviteModal(false);
+                    createMeeting();
+                }}
+                buttonText="Confirm"
+            />
         </section>
     );
 };

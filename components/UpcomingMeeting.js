@@ -2,10 +2,12 @@
 
 import { useGetCalls } from "@/hooks/useGetCalls";
 import Loader from "./Loader";
+import { useEffect } from "react";
+import axios from "axios";
 
 const UpcomingMeeting = () => {
     const { upcomingCalls, isLoading } = useGetCalls();
-    console.log(upcomingCalls[0]);
+
     if (isLoading) return <Loader />;
     if (upcomingCalls.length == 0) return <>No Upcoming Meetings</>;
 

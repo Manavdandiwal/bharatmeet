@@ -76,10 +76,11 @@ const Profile = () => {
                                     );
                                     console.log(res);
                                     const { data } = res;
-                                    if (data.sucess) {
+                                    if (data.success) {
                                         toast({
                                             title: "Password changed successfully",
                                         });
+                                        setChangePassword(false);
                                     } else {
                                         toast({
                                             title:
