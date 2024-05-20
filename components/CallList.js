@@ -58,7 +58,7 @@ const CallList = ({ type }) => {
             }
         };
         if (type === "recordings") fetchRecordings();
-    }, [type, callRecordings]);
+    }, [type, callRecordings, toast]);
 
     if (isLoading) return <Loader />;
 
@@ -105,11 +105,10 @@ const CallList = ({ type }) => {
                             link={
                                 type === "recordings"
                                     ? meeting.url
-                                    : `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${meeting.id}`
+                                    : `${meeting.id}`
                             }
-                            buttonText={
-                                type === "recordings" ? "Play" : "Start"
-                            }
+                            buttonText={type === "recordings" ? "Play" : "Join"}
+                            participants={meeting.state.members}
                         />
                     );
                 })

@@ -1,10 +1,6 @@
 "use client";
 
-import {
-    StreamCall,
-    StreamTheme,
-    useCallStateHooks,
-} from "@stream-io/video-react-sdk";
+import { StreamCall, StreamTheme } from "@stream-io/video-react-sdk";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import MeetingSetup from "@/components/MeetingSetup";
@@ -20,16 +16,15 @@ const Meeting = (props) => {
     const [isSetupComplete, setIsSetupComplete] = useState(false);
 
     const { call, isCallLoading } = useGetCallByID(id);
-    const { useParticipants } = useCallStateHooks();
 
     useEffect(() => {
-        return () => {
-            call?.camera.disable();
-            call?.microphone.disable();
-        };
-    });
-
-    const participants = useParticipants;
+        if (call) {
+            return () => {
+                call.camera.disable();
+                call.microphone.disable();
+            };
+        }
+    }, [call]);
 
     if (status === "loading" || isCallLoading) return <Loader />;
 
