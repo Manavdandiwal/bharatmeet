@@ -20,7 +20,6 @@ const HomeLayout = ({ children }) => {
                     <div className="w-full">{children}</div>
                 </section>
             </div>
-            FOOTER
         </main>
     );
 };

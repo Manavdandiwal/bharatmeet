@@ -1,4 +1,4 @@
-import React, { Children } from "react";
+import StreamVideoProvider from "@/providers/streamClientProvider";
 
 export const metadata = {
     title: "BharatMeet",
@@ -11,7 +11,7 @@ export const metadata = {
 const RootLayout = ({ children }) => {
     return (
         <main>
-            {children}
+            <StreamVideoProvider>{children}</StreamVideoProvider>
         </main>
     );
 };

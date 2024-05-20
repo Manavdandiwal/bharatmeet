@@ -67,8 +67,6 @@ const MeetingTypeList = () => {
 
             const call = client.call("default", callID);
             if (!call) throw new Error("Call could not be generated");
-            console.log("INVITES");
-            console.log(invites);
 
             const members = invites
                 .map((id) => ({
@@ -80,8 +78,6 @@ const MeetingTypeList = () => {
                     (v, i, a) =>
                         a.findIndex((v2) => v2.user_id === v.user_id) === i
                 );
-            console.log("MEMBERS");
-            console.log(members);
 
             const startAt =
                 value.dateTime.toISOString() ||

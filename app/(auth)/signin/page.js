@@ -5,16 +5,22 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import Loader from "@/components/Loader";
 
 function SignIn() {
     const router = useRouter();
     const searchParam = useSearchParams();
-    const { status } = useSession();
+    const { data: session, status } = useSession();
     const { toast } = useToast();
+    const [sendingOTP, setSendingOTP] = useState(false);
+    const [verifyingOTP, setVerifyingOTP] = useState(false);
 
     useEffect(() => {
-        if (status !== "unauthenticated") router.push("/");
-    }, []);
+        if (status !== "unauthenticated") {
+            if (session.user.role === "admin") router.push("/admin");
+            else router.push("/");
+        }
+    }, [router, session?.user?.role, status]);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailVerified, setEmailVerified] = useState(false);
@@ -37,15 +43,15 @@ function SignIn() {
         });
 
         if (!result.error) {
-            console.log(searchParam);
+            toast({
+                title: "Logged In successfully, redirecting",
+            });
             const URL = searchParam.get("callbackUrl") || "/";
-            console.log(URL);
             router.push(URL);
         } else {
             toast({
-                title: "Incorrect Credentials",
+                title: "Incorrect Password",
             });
-            setEmail("");
             setPassword("");
             console.error("Sign-in failed:", result.error);
         }
@@ -80,36 +86,49 @@ function SignIn() {
                                 }}
                                 required
                             />
-                            {!emailVerified && (
-                                <button
-                                    type="button"
-                                    className="absolute bg-dark-2 p-3 rounded-xl hover:underline text-white text-lg"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        axios
-                                            .post("/api/auth/sendOTP", {
-                                                email,
-                                            })
-                                            .then(({ data }) => {
-                                                console.log(data);
-                                                if (data.success) {
-                                                    setOTPSent(true);
-                                                }
-                                            })
-                                            .catch((err) => {
-                                                console.log(err);
-                                                toast({
-                                                    title: err.response.data
-                                                        .message,
+                            {!emailVerified &&
+                                (!sendingOTP ? (
+                                    <button
+                                        type="button"
+                                        className="absolute bg-dark-2 p-3 rounded-xl hover:underline text-white text-lg"
+                                        onClick={async (e) => {
+                                            e.preventDefault();
+                                            setSendingOTP(true);
+                                            axios
+                                                .post("/api/auth/sendOTP", {
+                                                    email,
+                                                })
+                                                .then(({ data }) => {
+                                                    console.log(data);
+                                                    if (optSent) {
+                                                        toast({
+                                                            title: "OPT has been sent again",
+                                                        });
+                                                    }
+                                                    if (data.success) {
+                                                        setOTPSent(true);
+                                                    }
+                                                })
+                                                .catch((err) => {
+                                                    console.log(err);
+                                                    toast({
+                                                        title: "Couldn't resend OTP, try again",
+                                                    });
+                                                })
+                                                .finally(() => {
+                                                    setSendingOTP(false);
                                                 });
-                                            });
-                                    }}
-                                >
-                                    {!optSent ? "Send OTP" : "Resend OTP"}
-                                </button>
-                            )}
+                                        }}
+                                    >
+                                        {!optSent ? "Send OTP" : "Resend OTP"}
+                                    </button>
+                                ) : (
+                                    <span className="absolute bg-dark-2 p-3 rounded-xl text-white text-lg">
+                                        Sending
+                                    </span>
+                                ))}
 
-                            {optSent && !emailVerified && (
+                            {optSent && !emailVerified && !sendingOTP && (
                                 <p className="text-slate-300 px-2">
                                     OTP has been sent to your email
                                 </p>
@@ -126,38 +145,52 @@ function SignIn() {
                                     type="text"
                                     placeholder="otp"
                                     value={otp}
-                                    className="text-white bg-dark-3 p-3 w-[100%] rounded-lg outline-none"
+                                    className="text-white bg-dark-3 p-3 w-[100%] rounded-lg outline-none disabled:cursor-not-allowed"
                                     onChange={(e) => {
                                         setOTP(e.target.value);
                                     }}
+                                    disabled={verifyingOTP}
                                 />
-                                <button
-                                    type="button"
-                                    className="absolute bg-dark-2 p-3 rounded-xl hover:underline text-white text-lg"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        axios
-                                            .post("/api/auth/verifyUser", {
-                                                email,
-                                                OTP: otp,
-                                            })
-                                            .then((res) => {
-                                                console.log(res);
-                                                if (res.data.success) {
-                                                    setEmailVerified(true);
-                                                }
-                                            })
-                                            .catch((err) => {
-                                                console.log(err);
-                                                toast({
-                                                    title: err.response.data
-                                                        .message,
+                                {!verifyingOTP ? (
+                                    <button
+                                        type="button"
+                                        className="absolute bg-dark-2 p-3 rounded-xl hover:underline text-white text-lg"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setVerifyingOTP(true);
+                                            axios
+                                                .post("/api/auth/verifyUser", {
+                                                    email,
+                                                    OTP: otp,
+                                                })
+                                                .then((res) => {
+                                                    console.log(res);
+                                                    if (res.data.success) {
+                                                        setEmailVerified(true);
+                                                    } else {
+                                                        throw new Error(
+                                                            "Wrong OTP"
+                                                        );
+                                                    }
+                                                })
+                                                .catch((err) => {
+                                                    console.log(err);
+                                                    toast({
+                                                        title: "Wrong OTP",
+                                                    });
+                                                })
+                                                .finally(() => {
+                                                    setVerifyingOTP(false);
                                                 });
-                                            });
-                                    }}
-                                >
-                                    Verify
-                                </button>
+                                        }}
+                                    >
+                                        Verify
+                                    </button>
+                                ) : (
+                                    <span className="bg-dark-2 absolute p-3 rounded-xl text-white text-lg">
+                                        Verifying
+                                    </span>
+                                )}
                             </div>
                         )}
 

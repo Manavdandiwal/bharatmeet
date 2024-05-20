@@ -15,10 +15,6 @@ const MeetingSetup = ({ setIsSetupComplete }) => {
     const call = useCall();
     const { data: session, status } = useSession();
 
-    if (!call) {
-        throw new Error("useCall must be used within StreamCall component");
-    }
-
     useEffect(() => {
         if (isMicCamToggledOn) {
             call?.camera.disable();
@@ -27,9 +23,25 @@ const MeetingSetup = ({ setIsSetupComplete }) => {
             call?.camera.enable();
             call?.microphone.enable();
         }
-    }, [isMicCamToggledOn, call?.camera, call.microphone]);
-    console.log(session);
-    console.log(call.state.members);
+    }, [isMicCamToggledOn, call?.camera, call?.microphone]);
+    if (!call) {
+        return (
+            <div className="flex items-center justify-center gap-5 flex-col">
+                <div className="max-w-lg rounded-lg bg-white p-8 shadow-md">
+                    <p className="text-center">
+                        Meeting does not exist
+                        <span className="font-bold text-red-600">
+                            {" "}
+                            - BharatMeet
+                        </span>
+                    </p>
+                </div>
+                <span className="bg-dark-2 text-white p-2 rounded-xl my-3">
+                    <Link href="/">Go back to Home Page</Link>
+                </span>
+            </div>
+        );
+    }
 
     const notALlowed =
         !session ||
@@ -53,7 +65,6 @@ const MeetingSetup = ({ setIsSetupComplete }) => {
             </div>
         );
     }
-    console.log(call);
 
     const notStarted = Date.now() < new Date(call.state.startsAt);
     if (notStarted) {

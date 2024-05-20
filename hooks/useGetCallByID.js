@@ -18,7 +18,7 @@ export const useGetCallByID = (id) => {
                 },
             });
             if (calls.length > 0) setCall(calls[0]);
-
+            console.log(calls);
             setIsCallLoading(false);
         };
         loadCall();

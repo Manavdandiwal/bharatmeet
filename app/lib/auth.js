@@ -26,16 +26,8 @@ export const authOptions = {
                         email: credentials.email,
                         password: credentials.password,
                     });
-                    const role =
-                        credentials.email == "admin@test.com"
-                            ? "admin"
-                            : "user";
                     if (user) {
-                        return {
-                            id: user._id.toString(),
-                            email: user.email,
-                            role: role, // Assuming 'user' as default role
-                        };
+                        return user;
                     } else {
                         return null;
                     }

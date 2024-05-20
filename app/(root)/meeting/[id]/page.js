@@ -14,7 +14,9 @@ import { useGetCallByID } from "@/hooks/useGetCallByID";
 
 const Meeting = (props) => {
     const { data: session, status } = useSession();
-    const { id } = props;
+    const { id } = props.params;
+    console.log("PROPS: ");
+    console.log(id);
     const [isSetupComplete, setIsSetupComplete] = useState(false);
 
     const { call, isCallLoading } = useGetCallByID(id);

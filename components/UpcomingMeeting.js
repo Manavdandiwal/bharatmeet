@@ -2,11 +2,12 @@
 
 import { useGetCalls } from "@/hooks/useGetCalls";
 import Loader from "./Loader";
-import { useEffect } from "react";
-import axios from "axios";
+import { useSession } from "next-auth/react";
 
 const UpcomingMeeting = () => {
     const { upcomingCalls, isLoading } = useGetCalls();
+    const { data: session } = useSession();
+    console.log(session.user);
 
     if (isLoading) return <Loader />;
     if (upcomingCalls.length == 0) return <>No Upcoming Meetings</>;
